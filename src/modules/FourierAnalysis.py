@@ -3,7 +3,7 @@
 # This is lastly modified YYYY/MMD/DD by Y. Shinohara
 from modules.constants import *
 import numpy as np
-import matplotlib.pyplo as plt
+import matplotlib.pyplot as plt
 class FourierAnalysis:
     """Description for FourierAnalysis class
     Class for frequenctly used functions based on Fourier analysis
@@ -12,7 +12,7 @@ class FourierAnalysis:
         self.var1 = None #A template for the variable
 
     @classmethod
-    def Fourier_interpolation_1D(x, f, Nfiner = 1, plot_option = False, endpoint = False):
+    def Fourier_interpolation_1D(self, x, f, Nfiner = 1, plot_option = False, endpoint = False):
         """Description for Fourier_interpolation_1D function
         A Function is for taking first- and second-derivative of a periodic function. 
         The returned arrays can be interpolated by a finer mech by Nfiner times denser mesh by Fourier transformaion.
