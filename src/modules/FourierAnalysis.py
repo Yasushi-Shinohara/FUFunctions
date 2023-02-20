@@ -25,41 +25,41 @@ class FourierAnalysis:
         #Preparation
         array_shape = f.shape
         if (len(array_shape)) == 1:
-            Naxis1 = array_shape[0]
-            workfiner = np.zeros([Nfiner*Naxis1,1], dtype='complex128')
-        if (len(array_shape)) == 2:
-            Naxis1 = array_shape[0]
-            Naxis2 = array_shape[1]
-            workfiner = np.zeros([Nfiner*Naxis1,Naxis2], dtype='complex128')
+            Nblockaxis = array_shape[0]
+            workfiner = np.zeros([Nfiner*Nblockaxis,1], dtype='complex128')
+        elif (len(array_shape)) == 2:
+            Nblockaxis = array_shape[0]
+            Nfftaxis = array_shape[1]
+            workfiner = np.zeros([Nblockaxis,Nfiner*Nfftaxis], dtype='complex128')
         else:
             print('The array shape, '+str(array_shape)+'is not supported.')
         #FFT
-        work = np.fft.fft(f, axis=0)
+        work = np.fft.fft(f, axis=1)
         #
-        if (Naxis1%2 == 0):
-            workfiner[:Naxis1//2,:] = work[:Naxis1//2,:]*Nfiner
-            workfiner[Nfiner*Naxis1 - Naxis1//2 : Nfiner*Naxis1,:] = work[Naxis1//2 :,:]*Nfiner
-        elif (Naxis1%2 == 1):
-            print('The odd number Naxis1,'+str(Naxis1)+', is not supported.')
+        if (Nfftaxis%2 == 0):
+            workfiner[:, :Nfftaxis//2] = work[:, :Nfftaxis//2]*Nfiner
+            workfiner[:, Nfiner*Nfftaxis - Nfftaxis//2 : Nfiner*Nfftaxis] = work[:, Nfftaxis//2 :]*Nfiner
+        elif (Nblockaxis%2 == 1):
+            print('The odd number Nfftaxis,'+str(Nfftaxis)+', is not supported.')
         k = np.fft.fftfreq(Nx*Nfiner)*(tpi/dx)*Nfiner
         workfiner_deriv = 0.0*workfiner
         workfiner_2ndderiv = 0.0*workfiner
-        for iaxis2 in range(Naxis2):
-            workfiner_deriv[:,iaxis2] = zI*k[:]*workfiner[:,iaxis2]
-            workfiner_2ndderiv[:,iaxis2] = -k[:]**2*workfiner[:,iaxis2]
+        for iaxis1 in range(Nblockaxis):
+            workfiner_deriv[iaxis1, :] = zI*k[:]*workfiner[iaxis1, :]
+            workfiner_2ndderiv[iaxis1, :] = -k[:]**2*workfiner[iaxis1, :]
         if (len(array_shape)) == 1:
-            Naxis1 = array_shape[0]
-            workfiner = np.zeros([Nfiner*Naxis1,1], dtype='complex128')
+            Nblockaxis = array_shape[0]
+            workfiner = np.zeros([Nfiner*Nblockaxis,1], dtype='complex128')
         #
         x = np.linspace(xmin, xmax, Nx*Nfiner, endpoint = False)
-        f = np.real( np.fft.ifft(workfiner, axis = 0) )
-        dfpdx = np.real( np.fft.ifft(workfiner_deriv, axis = 0) )
-        d2fpdx2 = np.real( np.fft.ifft(workfiner_2ndderiv, axis = 0) )
+        f = np.real( np.fft.ifft(workfiner, axis = 1) )
+        dfpdx = np.real( np.fft.ifft(workfiner_deriv, axis = 1) )
+        d2fpdx2 = np.real( np.fft.ifft(workfiner_2ndderiv, axis = 1) )
         if (endpoint):
             x = np.append(x, xmax)
-            f = np.append(f, f[0:1,:], axis=0)
-            dfpdx = np.append(dfpdx, dfpdx[0:1,:], axis=0)
-            d2fpdx2 = np.append(d2fpdx2, d2fpdx2[0:1,:], axis=0)
+            f = np.append(f, f[:, 0:1], axis=1)
+            dfpdx = np.append(dfpdx, dfpdx[:, 0:1], axis=1)
+            d2fpdx2 = np.append(d2fpdx2, d2fpdx2[:, 0:1], axis=1)
         if (len(array_shape)) == 1:
             f = f[: 0]
             dfpdx = dfpdx[:, 0]
